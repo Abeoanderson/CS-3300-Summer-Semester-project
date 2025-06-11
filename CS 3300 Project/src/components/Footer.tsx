@@ -1,5 +1,5 @@
 const Footer = () => (
-  <footer>
+  <footer className="bg-info-subtle border">
     <p>Fitness Tracker: CS 3300</p>
   </footer>
 );

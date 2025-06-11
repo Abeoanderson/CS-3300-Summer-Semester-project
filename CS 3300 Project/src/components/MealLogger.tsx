@@ -69,51 +69,106 @@ const MealLogger = () => {
   );
 
   return (
-    <section className="box">
-      <h2>Log A Meal:</h2>
-      <ul>
-        {meals.map((m, index) => (
-          <li key={index}>
-            {m.name} - {m.calories} cal
-          </li>
-        ))}
-      </ul>
-      <input
-        type="text"
-        placeholder="Meal Name"
-        value={meal.name}
-        onChange={(e) => setMeal({ ...meal, name: e.target.value })}
-      />
-      <input
-        type="number"
-        placeholder="Calories"
-        value={meal.calories}
-        onChange={(e) => setMeal({ ...meal, calories: e.target.value })}
-      />
-      <input
-        type="number"
-        placeholder="Protein (g)"
-        value={meal.protein}
-        onChange={(e) => setMeal({ ...meal, protein: e.target.value })}
-      />
-      <input
-        type="number"
-        placeholder="Carbs (g)"
-        value={meal.carbs}
-        onChange={(e) => setMeal({ ...meal, carbs: e.target.value })}
-      />
-      <input
-        type="number"
-        placeholder="Fat (g)"
-        value={meal.fat}
-        onChange={(e) => setMeal({ ...meal, fat: e.target.value })}
-      />
-      <button onClick={handleAddMeal}>Add Meal</button>
-      <h3>
-        Total Calories: <span>{totalCalories}</span>
-      </h3>
-      <div style={{ width: "400px", height: "400px" }}>
-        <canvas ref={canvasRef} />
+    <section className="container py-4">
+      <div className="mx-auto" style={{ maxWidth: "900px" }}>
+        <div className="row g-4 align-items-start">
+          <div className="col-md-6">
+            <div className="bg-light p-4 rounded shadow-sm">
+              <h2 className="text-primary mb-4">Log a Meal</h2>
+
+              <form className="row g-2 mb-3">
+                <div className="col-12">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Meal Name"
+                    value={meal.name}
+                    onChange={(e) => setMeal({ ...meal, name: e.target.value })}
+                  />
+                </div>
+                <div className="col-6">
+                  <input
+                    type="number"
+                    className="form-control"
+                    placeholder="Calories"
+                    value={meal.calories}
+                    onChange={(e) =>
+                      setMeal({ ...meal, calories: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="col-6">
+                  <input
+                    type="number"
+                    className="form-control"
+                    placeholder="Protein (g)"
+                    value={meal.protein}
+                    onChange={(e) =>
+                      setMeal({ ...meal, protein: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="col-6">
+                  <input
+                    type="number"
+                    className="form-control"
+                    placeholder="Carbs (g)"
+                    value={meal.carbs}
+                    onChange={(e) =>
+                      setMeal({ ...meal, carbs: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="col-6">
+                  <input
+                    type="number"
+                    className="form-control"
+                    placeholder="Fat (g)"
+                    value={meal.fat}
+                    onChange={(e) => setMeal({ ...meal, fat: e.target.value })}
+                  />
+                </div>
+                <div className="col-12">
+                  <button
+                    type="button"
+                    className="btn btn-primary w-100"
+                    onClick={handleAddMeal}
+                  >
+                    Add Meal
+                  </button>
+                </div>
+              </form>
+
+              <ul className="list-group mb-3">
+                {meals.map((m, index) => (
+                  <li
+                    key={index}
+                    className="list-group-item d-flex justify-content-between"
+                  >
+                    <span>{m.name}</span>
+                    <span className="text-muted">{m.calories} cal</span>
+                  </li>
+                ))}
+              </ul>
+
+              <h5 className="text-secondary">
+                Total Calories: <span className="fw-bold">{totalCalories}</span>
+              </h5>
+            </div>
+          </div>
+          <div className="col-md-6">
+            <div
+              className="bg-light p-4 rounded shadow-sm d-flex justify-content-center align-items-center"
+              style={{ height: "100%" }}
+            >
+              <div
+                style={{ width: "100%", maxWidth: "300px", height: "300px" }}
+              >
+                <canvas ref={canvasRef} />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
