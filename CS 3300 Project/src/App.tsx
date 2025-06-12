@@ -3,6 +3,7 @@ import Footer from "./components/Footer";
 import MealLogger from "./components/MealLogger";
 import WorkoutLogger from "./components/WorkoutLogger";
 import Achievements from "./components/Achievements";
+import DateNav from "./components/DateNavigator";
 
 function App() {
   return (
