@@ -75,7 +75,6 @@ const MealLogger = () => {
           <div className="col-md-6">
             <div className="bg-light p-4 rounded shadow-sm">
               <h2 className="text-primary mb-4">Log a Meal</h2>
-
               <form className="row g-2 mb-3">
                 <div className="col-12">
                   <input
@@ -162,7 +161,7 @@ const MealLogger = () => {
               style={{ height: "100%" }}
             >
               <div
-                style={{ width: "100%", maxWidth: "300px", height: "300px" }}
+                style={{ width: "100%", maxWidth: "300px"}}
               >
                 <canvas ref={canvasRef} />
               </div>
