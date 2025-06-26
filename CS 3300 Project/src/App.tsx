@@ -17,27 +17,6 @@ function App() {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [newMeal, setNewMeal] = useState({ name: "", calories: "" });
 
-  useEffect(() => {
-    fetch("http://localhost:3001/meals")
-      .then((res) => res.json())
-      .then(setMeals);
-  }, []);
-  const handleSubmit = async () => {
-    await fetch("http://localhost:3001/meals", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: newMeal.name,
-        calories: Number(newMeal.calories),
-      }),
-    });
-
-    const updated = await fetch("http://localhost:3001/meals").then((res) =>
-      res.json()
-    );
-    setMeals(updated);
-    setNewMeal({ name: "", calories: "" });
-  };
   return (
     <>
       <Navbar />

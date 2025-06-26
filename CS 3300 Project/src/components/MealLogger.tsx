@@ -22,32 +22,66 @@ const MealLogger = () => {
   const chartRef = useRef<Chart | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const handleAddMeal = () => {
-    if (meal.name) {
-      setMeals([...meals, meal]);
-      setMeal({ name: "", calories: "", protein: "", carbs: "", fat: "" });
-    }
+  const handleAddMeal = async () => {
+    if (!meal.name) return;
+
+    await fetch("http://localhost:3001/meals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: meal.name,
+        calories: Number(meal.calories),
+        protein: Number(meal.protein),
+        carbs: Number(meal.carbs),
+        fat: Number(meal.fat),
+      }),
+    });
+
+    const updated = await fetch("http://localhost:3001/meals").then((res) =>
+      res.json()
+    );
+    setMeals(updated);
+    setMeal({ name: "", calories: "", protein: "", carbs: "", fat: "" });
   };
+
+  useEffect(() => {
+    fetch("http://localhost:3001/meals")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Fetched meals:", data);
+        setMeals(data);
+      })
+      .catch((err) => console.error("Fetch error:", err));
+  }, []);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    // Destroy existing chart if it exists
+    const totalProtein = meals.reduce((a, m) => a + Number(m.protein || 0), 0);
+    const totalCarbs = meals.reduce((a, m) => a + Number(m.carbs || 0), 0);
+    const totalFat = meals.reduce((a, m) => a + Number(m.fat || 0), 0);
+
+    const hasData = totalProtein + totalCarbs + totalFat > 0;
+
+    if (!hasData) {
+      console.log("No chart data to display.");
+      return;
+    }
+
     if (chartRef.current) {
       chartRef.current.destroy();
     }
 
-    chartRef.current = new Chart(canvasRef.current, {
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) return;
+
+    chartRef.current = new Chart(ctx, {
       type: "pie",
       data: {
         labels: ["Protein", "Carbs", "Fat"],
         datasets: [
           {
-            data: [
-              meals.reduce((a, m) => a + Number(m.protein || 0), 0),
-              meals.reduce((a, m) => a + Number(m.carbs || 0), 0),
-              meals.reduce((a, m) => a + Number(m.fat || 0), 0),
-            ],
+            data: [totalProtein, totalCarbs, totalFat],
             backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384"],
           },
         ],
@@ -55,11 +89,16 @@ const MealLogger = () => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+        },
       },
     });
 
     return () => {
-      chartRef.current?.destroy(); // cleanup on unmount
+      chartRef.current?.destroy();
     };
   }, [meals]);
 
@@ -75,7 +114,10 @@ const MealLogger = () => {
           <div className="col-md-6">
             <div className="bg-light p-4 rounded shadow-sm">
               <h2 className="text-primary mb-4">Log a Meal</h2>
-              <form className="row g-2 mb-3">
+              <form
+                className="row g-2 mb-3"
+                onSubmit={(e) => e.preventDefault()}
+              >
                 <div className="col-12">
                   <input
                     type="text"
@@ -160,9 +202,7 @@ const MealLogger = () => {
               className="bg-light p-4 rounded shadow-sm d-flex justify-content-center align-items-center"
               style={{ height: "100%" }}
             >
-              <div
-                style={{ width: "100%", maxWidth: "300px"}}
-              >
+              <div style={{ width: "100%", maxWidth: "300px" }}>
                 <canvas ref={canvasRef} />
               </div>
             </div>
