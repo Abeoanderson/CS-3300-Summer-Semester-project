@@ -1,7 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
+import dayjs from "dayjs";
+
+const API_URL = import.meta.env.VITE_API_URL;
+console.log(API_URL);
 
 type Meal = {
+  id: string;
+  name: string;
+  type: string;
+  date: string;
+};
+
+type MealForm = {
   name: string;
   calories: string;
   protein: string;
@@ -11,7 +22,7 @@ type Meal = {
 
 const MealLogger = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
-  const [meal, setMeal] = useState<Meal>({
+  const [meal, setMeal] = useState<MealForm>({
     name: "",
     calories: "",
     protein: "",
@@ -22,66 +33,75 @@ const MealLogger = () => {
   const chartRef = useRef<Chart | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const token = localStorage.getItem("token"); // assumed token storage
+
+  const fetchMeals = async () => {
+    try {
+      const res = await fetch(
+        `${API_URL}/api/meals?date=${dayjs().format("YYYY-MM-DD")}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json();
+      setMeals(data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
+  };
+
   const handleAddMeal = async () => {
     if (!meal.name) return;
 
-    await fetch("http://localhost:3001/meals", {
+    await fetch(`${API_URL}/api`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
         name: meal.name,
         calories: Number(meal.calories),
         protein: Number(meal.protein),
         carbs: Number(meal.carbs),
         fat: Number(meal.fat),
+        date: dayjs().format("YYYY-MM-DD"),
       }),
     });
 
-    const updated = await fetch("http://localhost:3001/meals").then((res) =>
-      res.json()
-    );
-    setMeals(updated);
+    await fetchMeals();
     setMeal({ name: "", calories: "", protein: "", carbs: "", fat: "" });
   };
 
   useEffect(() => {
-    fetch("http://localhost:3001/meals")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Fetched meals:", data);
-        setMeals(data);
-      })
-      .catch((err) => console.error("Fetch error:", err));
+    fetchMeals();
   }, []);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const totalProtein = meals.reduce((a, m) => a + Number(m.protein || 0), 0);
-    const totalCarbs = meals.reduce((a, m) => a + Number(m.carbs || 0), 0);
-    const totalFat = meals.reduce((a, m) => a + Number(m.fat || 0), 0);
+    if (chartRef.current) chartRef.current.destroy();
 
-    const hasData = totalProtein + totalCarbs + totalFat > 0;
+    const totals = meals.reduce(
+      (acc, m) => {
+        const parts = m.type.split(",");
+        for (let part of parts) {
+          if (part.includes("protein")) acc.protein += parseInt(part);
+          else if (part.includes("carbs")) acc.carbs += parseInt(part);
+          else if (part.includes("fat")) acc.fat += parseInt(part);
+        }
+        return acc;
+      },
+      { protein: 0, carbs: 0, fat: 0 }
+    );
 
-    if (!hasData) {
-      console.log("No chart data to display.");
-      return;
-    }
-
-    if (chartRef.current) {
-      chartRef.current.destroy();
-    }
-
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
-
-    chartRef.current = new Chart(ctx, {
+    chartRef.current = new Chart(canvasRef.current, {
       type: "pie",
       data: {
         labels: ["Protein", "Carbs", "Fat"],
         datasets: [
           {
-            data: [totalProtein, totalCarbs, totalFat],
+            data: [totals.protein, totals.carbs, totals.fat],
             backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384"],
           },
         ],
@@ -89,11 +109,6 @@ const MealLogger = () => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: "bottom",
-          },
-        },
       },
     });
 
@@ -102,10 +117,10 @@ const MealLogger = () => {
     };
   }, [meals]);
 
-  const totalCalories = meals.reduce(
-    (total, m) => total + Number(m.calories || 0),
-    0
-  );
+  const totalCalories = meals.reduce((total, m) => {
+    const match = m.type.match(/(\d+)\s*cal/);
+    return total + (match ? parseInt(match[1]) : 0);
+  }, 0);
 
   return (
     <section className="container py-4">
@@ -181,13 +196,15 @@ const MealLogger = () => {
               </form>
 
               <ul className="list-group mb-3">
-                {meals.map((m, index) => (
+                {meals.map((m) => (
                   <li
-                    key={index}
+                    key={m.id}
                     className="list-group-item d-flex justify-content-between"
                   >
                     <span>{m.name}</span>
-                    <span className="text-muted">{m.calories} cal</span>
+                    <span className="text-muted">
+                      {m.type.match(/(\d+)\s*cal/)?.[1]} cal
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -197,6 +214,7 @@ const MealLogger = () => {
               </h5>
             </div>
           </div>
+
           <div className="col-md-6">
             <div
               className="bg-light p-4 rounded shadow-sm d-flex justify-content-center align-items-center"
