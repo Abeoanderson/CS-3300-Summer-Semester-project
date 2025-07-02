@@ -1,233 +1,113 @@
-import { useState, useEffect, useRef } from "react";
-import Chart from "chart.js/auto";
-import dayjs from "dayjs";
-
-const API_URL = import.meta.env.VITE_API_URL;
-console.log(API_URL);
-
-type Meal = {
-  id: string;
-  name: string;
-  type: string;
-  date: string;
-};
-
-type MealForm = {
-  name: string;
-  calories: string;
-  protein: string;
-  carbs: string;
-  fat: string;
-};
+import React, { useEffect, useState } from "react";
+import {
+  fetchMeals,
+  addMeal,
+  deleteMeal,
+  updateMeal,
+  getStats,
+} from "../utils/api";
+import MacroChart from "./MacroChart";
 
 const MealLogger = () => {
-  const [meals, setMeals] = useState<Meal[]>([]);
-  const [meal, setMeal] = useState<MealForm>({
-    name: "",
-    calories: "",
-    protein: "",
-    carbs: "",
-    fat: "",
-  });
+  const [meals, setMeals] = useState<any[]>([]);
+  const [name, setName] = useState("");
+  const [calories, setCalories] = useState("");
+  const [protein, setProtein] = useState("");
+  const [carbs, setCarbs] = useState("");
+  const [fat, setFat] = useState("");
 
-  const chartRef = useRef<Chart | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  const token = localStorage.getItem("token"); // assumed token storage
-
-  const fetchMeals = async () => {
-    try {
-      const res = await fetch(
-        `${API_URL}/api/meals?date=${dayjs().format("YYYY-MM-DD")}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await res.json();
-      setMeals(data);
-    } catch (err) {
-      console.error("Fetch error:", err);
-    }
+  const loadMeals = async () => {
+    const data = await fetchMeals();
+    setMeals(data);
   };
 
   const handleAddMeal = async () => {
-    if (!meal.name) return;
-
-    await fetch(`${API_URL}/api`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        name: meal.name,
-        calories: Number(meal.calories),
-        protein: Number(meal.protein),
-        carbs: Number(meal.carbs),
-        fat: Number(meal.fat),
-        date: dayjs().format("YYYY-MM-DD"),
-      }),
+    const { numMeals } = await getStats();
+    const limit = 4 * +protein + 4 * +carbs + 9 * +fat;
+    if (+calories < limit - 50 || +calories > limit + 50) {
+      return alert("Calories do not match macros.");
+    }
+    if (numMeals > 20) {
+      return alert("Cannot track more than 20 meals/day.");
+    }
+    await addMeal({
+      name,
+      calories: +calories,
+      protein: +protein,
+      carbs: +carbs,
+      fat: +fat,
     });
-
-    await fetchMeals();
-    setMeal({ name: "", calories: "", protein: "", carbs: "", fat: "" });
+    loadMeals();
   };
 
   useEffect(() => {
-    fetchMeals();
+    loadMeals();
   }, []);
 
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    if (chartRef.current) chartRef.current.destroy();
-
-    const totals = meals.reduce(
-      (acc, m) => {
-        const parts = m.type.split(",");
-        for (let part of parts) {
-          if (part.includes("protein")) acc.protein += parseInt(part);
-          else if (part.includes("carbs")) acc.carbs += parseInt(part);
-          else if (part.includes("fat")) acc.fat += parseInt(part);
-        }
-        return acc;
-      },
-      { protein: 0, carbs: 0, fat: 0 }
-    );
-
-    chartRef.current = new Chart(canvasRef.current, {
-      type: "pie",
-      data: {
-        labels: ["Protein", "Carbs", "Fat"],
-        datasets: [
-          {
-            data: [totals.protein, totals.carbs, totals.fat],
-            backgroundColor: ["#36A2EB", "#FFCE56", "#FF6384"],
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    });
-
-    return () => {
-      chartRef.current?.destroy();
-    };
-  }, [meals]);
-
-  const totalCalories = meals.reduce((total, m) => {
-    const match = m.type.match(/(\d+)\s*cal/);
-    return total + (match ? parseInt(match[1]) : 0);
-  }, 0);
+  const totals = meals.reduce(
+    (totals, meal) => {
+      return {
+        calories: totals.calories + (meal.calories || 0),
+        protein: totals.protein + (meal.protein || 0),
+        carbs: totals.carbs + (meal.carbs || 0),
+        fat: totals.fat + (meal.fat || 0),
+      };
+    },
+    { calories: 0, protein: 0, carbs: 0, fat: 0 }
+  );
 
   return (
-    <section className="container py-4">
-      <div className="mx-auto" style={{ maxWidth: "900px" }}>
-        <div className="row g-4 align-items-start">
-          <div className="col-md-6">
-            <div className="bg-light p-4 rounded shadow-sm">
-              <h2 className="text-primary mb-4">Log a Meal</h2>
-              <form
-                className="row g-2 mb-3"
-                onSubmit={(e) => e.preventDefault()}
-              >
-                <div className="col-12">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Meal Name"
-                    value={meal.name}
-                    onChange={(e) => setMeal({ ...meal, name: e.target.value })}
-                  />
-                </div>
-                <div className="col-6">
-                  <input
-                    type="number"
-                    className="form-control"
-                    placeholder="Calories"
-                    value={meal.calories}
-                    onChange={(e) =>
-                      setMeal({ ...meal, calories: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-6">
-                  <input
-                    type="number"
-                    className="form-control"
-                    placeholder="Protein (g)"
-                    value={meal.protein}
-                    onChange={(e) =>
-                      setMeal({ ...meal, protein: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-6">
-                  <input
-                    type="number"
-                    className="form-control"
-                    placeholder="Carbs (g)"
-                    value={meal.carbs}
-                    onChange={(e) =>
-                      setMeal({ ...meal, carbs: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-6">
-                  <input
-                    type="number"
-                    className="form-control"
-                    placeholder="Fat (g)"
-                    value={meal.fat}
-                    onChange={(e) => setMeal({ ...meal, fat: e.target.value })}
-                  />
-                </div>
-                <div className="col-12">
-                  <button
-                    type="button"
-                    className="btn btn-primary w-100"
-                    onClick={handleAddMeal}
-                  >
-                    Add Meal
-                  </button>
-                </div>
-              </form>
-
-              <ul className="list-group mb-3">
-                {meals.map((m) => (
-                  <li
-                    key={m.id}
-                    className="list-group-item d-flex justify-content-between"
-                  >
-                    <span>{m.name}</span>
-                    <span className="text-muted">
-                      {m.type.match(/(\d+)\s*cal/)?.[1]} cal
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <h5 className="text-secondary">
-                Total Calories: <span className="fw-bold">{totalCalories}</span>
-              </h5>
-            </div>
-          </div>
-
-          <div className="col-md-6">
-            <div
-              className="bg-light p-4 rounded shadow-sm d-flex justify-content-center align-items-center"
-              style={{ height: "100%" }}
+    <div>
+      <h2>Meals</h2>
+      <input
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        placeholder="Calories"
+        value={calories}
+        onChange={(e) => setCalories(e.target.value)}
+      />
+      <input
+        placeholder="Protein"
+        value={protein}
+        onChange={(e) => setProtein(e.target.value)}
+      />
+      <input
+        placeholder="Carbs"
+        value={carbs}
+        onChange={(e) => setCarbs(e.target.value)}
+      />
+      <input
+        placeholder="Fat"
+        value={fat}
+        onChange={(e) => setFat(e.target.value)}
+      />
+      <button onClick={handleAddMeal}>Add Meal</button>
+      <ul>
+        {meals.map((meal) => (
+          <li key={meal.id}>
+            {meal.name} - {meal.calories} cal
+            <button onClick={() => updateMeal(meal.id)}>Update</button>
+            <button
+              onClick={() => {
+                deleteMeal(meal.id);
+                loadMeals();
+              }}
             >
-              <div style={{ width: "100%", maxWidth: "300px" }}>
-                <canvas ref={canvasRef} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p>Total Calories: {totals.calories}</p>
+      <MacroChart
+        protein={totals.protein}
+        carbs={totals.carbs}
+        fat={totals.fat}
+      />
+    </div>
   );
 };
 

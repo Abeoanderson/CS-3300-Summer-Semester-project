@@ -1,34 +1,33 @@
-import { Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
-import Home from "./Pages/home";
-import About from "./Pages/about";
-import NotFound from "./Pages/notFound";
-import Navbar from "./components/Navbar";
-import Login from "./Pages/login";
-import Signup from "./Pages/signup";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import LoginPage from "./Pages/LoginPage/LoginPage";
+import SignupPage from "./Pages/SignupPage";
+import Dashboard from "./Pages/Dashboard";
+import "./App.css";
 
-type Meal = {
-  id: number;
-  name: string;
-  calories: number;
-};
-
-function App() {
-  const [meals, setMeals] = useState<Meal[]>([]);
-  const [newMeal, setNewMeal] = useState({ name: "", calories: "" });
-
+const App = () => {
+  const token = localStorage.getItem("token");
   return (
-    <>
-      <Navbar />
+    <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/about" element={<About />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route
+          path="/dashboard"
+          element={token ? <Dashboard /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="*"
+          element={<Navigate to={token ? "/dashboard" : "/login"} />}
+        />
       </Routes>
-    </>
+    </Router>
   );
-}
+};
 
 export default App;

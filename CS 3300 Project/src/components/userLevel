@@ -1,0 +1,26 @@
+import React, { useEffect, useState } from 'react';
+import { getUser } from '../utils/api';
+import { levelSprites, levelTitles } from '../utils/constants';
+
+const UserLevel = () => {
+  const [level, setLevel] = useState(0);
+
+  useEffect(() => {
+    getUser().then(user => setLevel(user.level || 0));
+  }, []);
+
+  const logout = () => {
+    localStorage.clear();
+    window.location.href = '/login';
+  };
+
+  return (
+    <div>
+      <img src={levelSprites[level] || levelSprites[0]} alt="level" />
+      <span>Level {level + 1}: {levelTitles[level] || levelTitles[0]}</span>
+      <button onClick={logout}>Logout</button>
+    </div>
+  );
+};
+
+export default UserLevel;

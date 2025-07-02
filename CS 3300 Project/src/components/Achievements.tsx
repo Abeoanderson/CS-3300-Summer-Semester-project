@@ -1,16 +1,24 @@
-const Achievements = () => (
-  <section className="container py-4">
-    <div className="mx-auto" style={{ maxWidth: "900px" }}>
-      <div className="row g-4 align-items-start">
-        <div className="">
-          <div className="bg-light p-4 rounded shadow-sm">
-            <h2 className="text-primary mb-4">Acheivments:</h2>
-            <div>achievments will go here</div>
-          </div>
+import React, { useEffect, useState } from "react";
+import { getAchievements } from "../utils/api";
+import { achievementTitles, achievementSprites } from "../utils/constants";
+
+const Achievements = () => {
+  const [achievements, setAchievements] = useState<number[]>([]);
+
+  useEffect(() => {
+    getAchievements().then(setAchievements);
+  }, []);
+
+  return (
+    <div className="achievements-grid">
+      {achievements.map((id) => (
+        <div key={id} className="achievement-box">
+          <img src={achievementSprites[id]} alt="achievement" />
+          <span>{achievementTitles[id]}</span>
         </div>
-      </div>
+      ))}
     </div>
-  </section>
-);
+  );
+};
 
 export default Achievements;
