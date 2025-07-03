@@ -1,5 +1,4 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
 const headers = () => ({
   'Content-Type': 'application/json',
   Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -7,18 +6,22 @@ const headers = () => ({
 
 // Auth
 export const login = async (username: string, password: string) => {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const res = await fetch(`${API_BASE}/api/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
   });
   const data = await res.json();
-  if (data.token) localStorage.setItem('token', data.token);
-  return data.token;
+  if (res.ok && data.token) {
+    localStorage.setItem('token', data.token);
+    console.log("logged in user", username)
+    return data.token;
+  }
+  return null;
 };
 
 export const signup = async (username: string, password: string) => {
-  const res = await fetch(`${API_BASE}/auth/signup`, {
+  const res = await fetch(`${API_BASE}/api/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),

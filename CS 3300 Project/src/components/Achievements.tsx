@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getAchievements } from "../utils/api.jsx";
-import { achievementTitles, achievementSprites } from "../utils/constants";
+import { getAchievements } from "../utils/api.ts";
+import { achievementTitles, achievementSprites } from "../utils/constants.ts";
 
 const Achievements = () => {
   const [achievements, setAchievements] = useState<number[]>([]);

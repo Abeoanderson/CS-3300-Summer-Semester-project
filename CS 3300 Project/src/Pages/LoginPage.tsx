@@ -1,21 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signup } from "../utils/api.js";
+import { login } from "../utils/api";
 
-const SignupPage = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !password) {
-      alert("Please fill out all fields.");
-      return;
-    }
-    const success = await signup(username, password);
-    if (success) navigate("/login");
-    else alert("Signup failed. Try a different username.");
+    const token = await login(username, password);
+    if (token) navigate("/dashboard");
+    else alert("Invalid credentials.");
   };
 
   return (
@@ -25,7 +21,7 @@ const SignupPage = () => {
         className="container p-4 border rounded shadow"
         style={{ maxWidth: "400px" }}
       >
-        <h2 className="mb-4 text-center">Sign Up</h2>
+        <h2 className="mb-4 text-center">Login</h2>
 
         <div className="mb-3">
           <input
@@ -46,13 +42,16 @@ const SignupPage = () => {
           />
         </div>
 
-        <button type="submit" className="btn btn-success w-100">
-          Create Account
+        <button type="submit" className="btn btn-primary w-100">
+          Login
         </button>
 
         <div className="mt-3 text-center">
           <small>
-            Already have an account? <a href="/login">Login here</a>
+            Don’t have an account?{" "}
+            <a href="/signup" className="text-decoration-none">
+              Sign up
+            </a>
           </small>
         </div>
       </form>
@@ -60,4 +59,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export default LoginPage;
