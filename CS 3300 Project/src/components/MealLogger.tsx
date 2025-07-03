@@ -5,7 +5,7 @@ import {
   deleteMeal,
   updateMeal,
   getStats,
-} from "../utils/api";
+} from "../utils/api.jsx";
 import MacroChart from "./MacroChart";
 
 const MealLogger = () => {

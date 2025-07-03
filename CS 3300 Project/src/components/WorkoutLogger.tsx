@@ -5,7 +5,7 @@ import {
   deleteWorkout,
   updateWorkout,
   getStats,
-} from "../utils/api";
+} from "../utils/api.jsx";
 
 const WorkoutLogger = () => {
   const [workouts, setWorkouts] = useState<any[]>([]);

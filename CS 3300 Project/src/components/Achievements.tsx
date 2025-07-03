@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAchievements } from "../utils/api";
+import { getAchievements } from "../utils/api.jsx";
 import { achievementTitles, achievementSprites } from "../utils/constants";
 
 const Achievements = () => {
