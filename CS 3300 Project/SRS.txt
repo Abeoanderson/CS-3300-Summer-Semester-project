@@ -1,0 +1,37 @@
+Calorie Tracking: Easily log and visualize daily caloric intake.
+- as the trainee I want to track my calories and visualize daily caloric intake so that I can see my trends over the weeks/months and adjust my intake to reflect my goal
+- as the coach I want my Client to be able to track thier calorories so I can see that they are sticking to the plan
+- measurable though days tracked and reliability of being to access preivous days at-least a month back
+
+Weight Tracking: Chart progress and visualize weight changes over time.
+- as the trainee I want to track my weight and see its trend over time so that I can see if the macros I am eating are working
+- as the coach I want my clients to be able to track their weight so I can get feedback on if they need adjustment
+- measurable though days tracked and reliability of being to access preivous days at-least a month back
+
+Personalized Feedback: Get recommendations based on individual weight gain or loss goals.
+- as the trainie I want to be able to get personalized feedback from my coach so that I know how to continue with my routine over the time till my goal
+- as the coach I want to be able to give personalized feedback based on my clients tracked stats/macros so that they can progress efficiently and pain free
+- measurable though feedback popping up quick(within 5 min) and being persistant
+
+Secure User Login: A personal, secure environment for every user to track their journey. 
+- as the trainee I want my tracked info to stay private as that is a hipaa violation
+- as a coach I want my clients info and conversations with me to stay private so that their privacy is protected
+- measurable though auth and auth working and being decienlty hard to break into
+
+Gamified Achievements (Optional): Unlock badges and rewards to stay motivated and track milestones.
+- As the trainee I would like achievements to represent my work so that I know I am progressing
+- as the coach I like the achievements so that they can give my clients motivation and celebrate milestones.
+
+SRS functional vs non-functional requirements - for final project
+
+functional:
+Secure User Login: A personal, secure environment for every user to track their journey. 
+- as the trainee I want my tracked info to stay private as that is a hipaa violation
+- as a coach I want my clients info and conversations with me to stay private so that their privacy is protected
+Weight Tracking: Chart progress and visualize weight changes over time.
+- as the trainee I want to track my weight and see its trend over time so that I can see if the macros I am eating are working
+- as the coach I want my clients to be able to track their weight so I can get feedback on if they need adjustment
+
+security: a secure space to track stuff
+robustness: info isn't lost, and is backed up securely + long term
+reusability: setup for new clients shouldn't be hard

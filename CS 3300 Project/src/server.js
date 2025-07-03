@@ -195,6 +195,7 @@ app.get('/api/ach', (req, res) => {
 app.post('/api/signup', async (req, res) => {
   const { username, password, level } = req.body;
   if (!username || !password) {
+    console.log("missing credential")
     return res.status(400).json({ message: 'Need to provide username and password.' });
   }
 
@@ -234,6 +235,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.get('/api/user',  (req, res) => {
+  console.log(req,res, "req and res")
   const user = db.prepare(`
     SELECT username, level FROM users WHERE username = ?
   `).get(req.user.username);

@@ -30,7 +30,7 @@ export const signup = async (username: string, password: string) => {
 };
 
 export const getUser = async () => {
-  const res = await fetch(`${API_BASE}/user`, { headers: headers() });
+  const res = await fetch(`${API_BASE}/api/user`, { headers: headers() });
   return res.json();
 };
 
