@@ -5,18 +5,19 @@ const headers = () => ({
 });
 
 // Auth
-export const login = async (username: string, password: string) => {
-  const res = await fetch(`${API_BASE}/api/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+export const loginAPI = async (username: string, password: string) => {
+  // your login API call here
+  const res = await fetch("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
   });
-  const data = await res.json();
-  if (res.ok && data.token) {
-    localStorage.setItem('token', data.token);
-    console.log("logged in user", username)
-    return data.token;
+
+  if (res.ok) {
+    const data = await res.json();
+    return data.token; // or whatever your backend sends
   }
+
   return null;
 };
 

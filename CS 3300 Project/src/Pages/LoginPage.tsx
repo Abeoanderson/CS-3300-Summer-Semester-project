@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../utils/api";
+import { useAuth } from "../context/AuthContext"; // ✅ import only the hook
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth(); // ✅ use the hook here, inside the component
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = await login(username, password);
+    const token = await login(username, password); // this should call your context login function
     if (token) navigate("/dashboard");
     else alert("Invalid credentials.");
   };
