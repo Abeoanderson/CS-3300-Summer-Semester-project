@@ -32,6 +32,7 @@ db.prepare(`CREATE TABLE IF NOT EXISTS users (
   level INT,
   role TEXT,
   coach_id INTEGER,
+  message_ids INTEGER,
   FOREIGN KEY(coach_id) REFERENCES users(id)
 )`).run();
 
@@ -176,6 +177,5 @@ app.get('/api/user', auth, (req, res) => {
 });
 
 
-// (You can reattach your meal/workout routes here with minor adjustments for auth if needed)
 
 app.listen(3001, () => console.log('Server running on http://localhost:3001'));

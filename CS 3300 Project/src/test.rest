@@ -1,0 +1,63 @@
+### 1. Sign up a new coach user
+POST http://localhost:3001/api/signup
+Content-Type: application/json
+
+{
+  "username": "coach_anna",
+  "password": "CoachPass123!",
+  "role": "coach"
+}
+
+###
+
+### 2. Sign up a new athlete and assign the coach (use ID=1 if coach_anna is the first created)
+POST http://localhost:3001/api/signup
+Content-Type: application/json
+
+{
+  "username": "athlete_ben",
+  "password": "AthletePass123!",
+  "role": "athlete",
+  "coach_id": 1
+}
+
+###
+
+### 3. Log in as the athlete to get a token
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{
+  "username": "athlete_ben",
+  "password": "AthletePass123!"
+}
+
+###
+
+### 4. [After copying the token] Use token to fetch athlete's messages (none should exist yet)
+GET http://localhost:3001/api/messages
+Authorization: Bearer {{token}}
+
+# Replace {{token}} with actual JWT token returned from login above.
+# Example:
+# Authorization: Bearer eyJhbGciOi...
+
+###
+
+### 5. Send a message from coach to athlete
+# Use a real token obtained from logging in as coach_anna
+POST http://localhost:3001/api/messages
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "recipient_id": 2,
+  "content": "Great work on your training this week!"
+}
+
+###
+
+### 6. Retrieve updated messages for the athlete
+GET http://localhost:3001/api/messages
+Authorization: Bearer {{token}}
+
