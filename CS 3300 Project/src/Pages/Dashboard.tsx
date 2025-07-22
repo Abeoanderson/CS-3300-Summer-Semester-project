@@ -3,6 +3,7 @@ import MealLogger from "../components/MealLogger";
 import WorkoutLogger from "../components/WorkoutLogger";
 import UserLevel from "../components/userLevel.tsx";
 import Achievements from "../components/Achievements";
+import Messages from "../components/messages.tsx";
 
 const Dashboard = () => {
   return (
@@ -10,6 +11,7 @@ const Dashboard = () => {
       <UserLevel />
       <Achievements />
       <MealLogger />
+      <Messages />
       <WorkoutLogger />
     </div>
   );
