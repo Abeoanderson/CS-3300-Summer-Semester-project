@@ -1,4 +1,8 @@
 # CS-3300-Summer-Semester-project
+github repo:
+
+https://github.com/Abeoanderson/CS-3300-Summer-Semester-project/blob/main/README.md
+
 work for our summer CS 3300 semester project:
 Sprint 1: set up project with base components
   Components:
