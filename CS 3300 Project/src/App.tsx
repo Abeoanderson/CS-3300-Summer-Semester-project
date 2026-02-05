@@ -29,10 +29,8 @@ const App = () => {
             path="/dashboard"
             element={token ? <Dashboard /> : <Navigate to="/login" />}
           />
-          <Route
-            path="*"
-            element={<Navigate to={token ? "/dashboard" : "/login"} />}
-          />
+          <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} />} />
+
         </Routes>
       </Router>
     </AuthProvider>
